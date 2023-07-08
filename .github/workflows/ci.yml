@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build
-        run: sudo ./build.sh ${{ matrix.target }}
+        run: sudo sh ./build.sh ${{ matrix.target }}
                 
       - name: Update Artifact
         uses: actions/upload-artifact@v3
