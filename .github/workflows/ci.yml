@@ -17,7 +17,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - id: set-matrix
+      - id: set-matrix
         run: |
           json="{\"target\":["
           lines=$(cat .TARGETS)
