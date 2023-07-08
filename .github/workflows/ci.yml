@@ -6,9 +6,6 @@ on:
 
 env:
   OUTPUT_PATH: /home/cross-compiler
-  BINUTILS_VERSION: "2.40"
-  GDB_VERSION: "13.2.0"
-  GCC_VERSION: "13.1.0"
 
 jobs:
   create-matrix-from-file:
@@ -50,11 +47,15 @@ jobs:
       matrix: ${{fromJson(needs.create-matrix-from-file.outputs.matrix)}}
 
     steps:
-      - name: Read .env
-        uses: falti/dotenv-action@v1.0.4
-
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Read .env
+        uses: falti/dotenv-action@v1.0.4
+        with:
+          path: ./VERSIONS
+          log-variables: true
+          keys-case: upper
 
       - name: Build
         run: sudo sh ./build.sh -t ${{ matrix.target }} -o ${{ env.OUTPUT_PATH }} --binutils ${{ env.BINUTILS_VERSION }} --gdb ${{ env.GDB_VERSION }} --gcc ${{ env.GCC_VERSION }}
