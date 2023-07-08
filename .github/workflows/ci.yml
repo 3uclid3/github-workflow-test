@@ -66,13 +66,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: binutils-$BINUTILS_VERSION-gdb-$GDB_VERSION-gcc-$GCC_VERSION
-          release_name: Release binutils-$BINUTILS_VERSION gdb-$GDB_VERSION gcc-$GCC_VERSION
+          tag_name: binutils-${{ env.BINUTILS_VERSION }}-gdb-${{ env.GDB_VERSION }}-gcc-${{ env.GCC_VERSION }}
+          release_name: Release binutils-${{ env.BINUTILS_VERSION }} gdb-${{ env.GDB_VERSION }} gcc-${{ env.GCC_VERSION }}
           body: |
             Release Versions
-            - Binutils: $BINUTILS_VERSION 
-            - GDB: $GDB_VERSION
-            - GCC: $GCC_VERSION
+            - Binutils: ${{ env.BINUTILS_VERSION }}
+            - GDB: ${{ env.GDB_VERSION }}
+            - GCC: ${{ env.GCC_VERSION }}
           draft: false
           prerelease: false
 
@@ -83,4 +83,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.OUTPUT_PATH }}/*.tar.gz
+          asset_path: ./artifact/*.tar.gz
