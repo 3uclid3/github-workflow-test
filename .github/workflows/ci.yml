@@ -4,6 +4,12 @@ name: CI
 on:
   push:
 
+env:
+  OUTPUT_PATH: /home/cross-compiler
+  BINUTILS_VERSION: "2.40"
+  GDB_VERSION: "13.2.0"
+  GCC_VERSION: "13.1.0"
+
 jobs:
   build:
     name: Build
@@ -22,13 +28,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build
-        run: sudo sh ./build.sh -t ${{ matrix.target }} -o /home/cross-compiler --binutils 2.40 --gdb 13.2.0 --gcc 13.1.0
+        run: sudo sh ./build.sh -t ${{ matrix.target }} -o ${{ env.OUTPUT_PATH }} --binutils ${{ env.BINUTILS_VERSION }} --gdb ${{ env.GDB_VERSION }} --gcc ${{ env.GCC_VERSION }}
                 
       - name: Update Artifact
         uses: actions/upload-artifact@v3
         with:
           name: cross-compiler
-          path: /home/cross-compiler
+          path: ${{ env.OUTPUT_PATH }}
 
           
   release:
@@ -43,15 +49,35 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: cross-compiler
+
+      - name: Compress Artifact
+        run: |
+          for f in * \
+          do \
+            tar -czvf ${{ env.OUTPUT_PATH }}/$f.tar.gz $f; \
+          done
           
-      - name: Release
-        uses: actions/create-release@v1
+      - name: Create Release
+        uses: shogo82148/actions-create-release@v1
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          generate_release_notes: true
+          tag_name: binutils-$BINUTILS_VERSION gdb-$GDB_VERSION gcc-$GCC_VERSION
+          release_name: Release binutils-$BINUTILS_VERSION gdb-$GDB_VERSION gcc-$GCC_VERSION
+          body: |
+            Release Versions
+            - Binutils: $BINUTILS_VERSION 
+            - GDB: $GDB_VERSION
+            - GCC: $GCC_VERSION
           draft: false
           prerelease: false
+
+      - name: Upload Release Assets
+        uses: shogo82148/actions-upload-release-asset@v1
+        id: upload-release-assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.OUTPUT_PATH }}/*.tar.gz
