@@ -52,7 +52,9 @@ jobs:
 
       - name: Compress Artifact
         run: |
-          for f in *; do(tar -czvf ${{ env.OUTPUT_PATH }}/$f.tar.gz $f);
+          for d in */ ; do \
+            tar -czvf ${{ env.OUTPUT_PATH }}/$f.tar.gz $f \
+          done \
           
       - name: Create Release
         uses: shogo82148/actions-create-release@v1
