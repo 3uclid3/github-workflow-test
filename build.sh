@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SHORT=t:, o
+SHORT=t:,o
 LONG=target:,output-dir:,binutils:,gdb:,gcc
 OPTS=$(getopt -o $SHORT: --long $LONG: -- "$@")
 
