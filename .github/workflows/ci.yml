@@ -20,7 +20,7 @@ jobs:
       - id: set-matrix
         run: |
           json="{\"target\":["
-          lines=$(cat .TARGETS)
+          lines=$(cat ./TARGETS)
           for line in $lines
           do
             json="$json $line,"
