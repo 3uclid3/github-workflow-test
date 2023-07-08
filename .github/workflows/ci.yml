@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build
-        run: sudo sh ./build.sh ${{ matrix.target }}
+        run: sudo sh ./build.sh -t ${{ matrix.target }} -o /home/cross-compiler --binutils 2.40 --gdb 13.2.0 --gcc 13.1.0
                 
       - name: Update Artifact
         uses: actions/upload-artifact@v3

@@ -1,21 +1,23 @@
 #!/bin/bash
 
-SHORT=t
-LONG=target:,binutils:,gdb:,gcc
-OPTS=$(getopt -a -n class --options $SHORT --longoptions $LONG -- "$@")
+SHORT=t:, o
+LONG=target:,output-dir:,binutils:,gdb:,gcc
+OPTS=$(getopt -o $SHORT: --long $LONG: -- "$@")
 
 eval set -- "$OPTS"
 
 TARGET=
+OUTPUT_DIR=
 BINUTILS_VERSION=
 GDB_VERSION=
 GCC_VERSION=
 while true; do
   case "$1" in
-    -t | --target ) TARGET="$1"; shift ;;
-    --binutils ) BINUTILS_VERSION="$1"; shift ;;
-    --gdb ) GDB_VERSION="$1"; shift ;;
-    --gcc ) GCC_VERSION="$1"; shift ;;
+    -t | --target ) TARGET="$2"; shift 2 ;;
+    -o | --output-dir ) OUTPUT_DIR="$2"; shift 2 ;;
+    --binutils ) BINUTILS_VERSION="$2"; shift 2 ;;
+    --gdb ) GDB_VERSION="$2"; shift 2 ;;
+    --gcc ) GCC_VERSION="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -23,9 +25,9 @@ done
 
 echo "Building Cross-Compiler for $TARGET (binutils-$BINUTILS_VERSION gdb-$GDB_VERSION gcc-$GCC_VERSION)"
 
-mkdir -p "/home/cross-compiler/$TARGET"
+mkdir -p "$OUTPUT_DIR/$TARGET"
 
-cat <<EOF > /home/cross-compiler/$TARGET/VERSION.txt
+cat <<EOF > $OUTPUT_DIR/$TARGET/VERSION.txt
 binutils-$BINUTILS_VERSION 
 gdb-$GDB_VERSION 
 gcc-$GCC_VERSION
