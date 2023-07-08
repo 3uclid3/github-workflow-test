@@ -19,14 +19,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        
-      - id: set-matrix
+
+      - name: Generate Matrix JSON from file
+        id: set-matrix
         run: |
           json="{\"target\":["
           lines=$(cat ./TARGETS)
           for line in $lines
           do
-            json="$json $line,"
+            json="$json \"$line\","
           done
 
           # Remove last "," and add closing brackets
