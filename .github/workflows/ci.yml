@@ -54,8 +54,9 @@ jobs:
         uses: falti/dotenv-action@v1.0.4
         with:
           path: ./VERSIONS
-          log-variables: true
           keys-case: upper
+          log-variables: true
+          export-variables: true
 
       - name: Build
         run: sudo sh ./build.sh -t ${{ matrix.target }} -o ${{ env.OUTPUT_PATH }} --binutils ${{ env.BINUTILS_VERSION }} --gdb ${{ env.GDB_VERSION }} --gcc ${{ env.GCC_VERSION }}
