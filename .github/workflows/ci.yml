@@ -52,7 +52,7 @@ jobs:
 
       - name: Compress Artifact
         run: |
-          cd {{ env.$OUTPUT_PATH }}
+          cd ${{ env.OUTPUT_PATH }}
           for d in *; do \
               if [ -d "$d" ]; then \
                   tar -czvf $d.tar.gz $d; \
