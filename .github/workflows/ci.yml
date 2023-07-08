@@ -5,24 +5,49 @@ on:
   push:
 
 jobs:
+  create-matrix-from-file:
+    name: Read TARGETS file
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - id: set-matrix
+        run: |
+          json="{\"target\":["
+          lines=$(cat .TARGETS)
+          for line in $lines
+          do
+            json="$json $line,"
+          done
+
+          # Remove last "," and add closing brackets
+          if [[ $json == *, ]]; then
+            json="${json%?}"
+          fi
+          json="$json]}"
+          echo $json
+
+          # Set output
+          echo "matrix=$( echo "$json" )" >> $GITHUB_OUTPUT
+
   build:
     name: Build
     runs-on: ubuntu-22.04
+    needs: [create-matrix-from-file]
 
     strategy:
       fail-fast: false
-      matrix:
-        target:
-          - x86_64-elf
-          - i686-elf
+      matrix: ${{fromJson(needs.create-matrix-from-file.outputs.matrix)}}
 
     steps:
+      - name: Read .env
+        uses: falti/dotenv-action@v1.0.4
 
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Build
-        run: sudo sh ./build.sh ${{ matrix.target }}
+        run: sudo sh ./build.sh -t ${{ matrix.target }} -o ${{ env.OUTPUT_PATH }} --binutils ${{ env.BINUTILS_VERSION }} --gdb ${{ env.GDB_VERSION }} --gcc ${{ env.GCC_VERSION }}
                 
       - name: Update Artifact
         uses: actions/upload-artifact@v3
@@ -34,7 +59,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-22.04
-
     needs: [build]
           
     steps:
