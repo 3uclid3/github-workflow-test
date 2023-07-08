@@ -49,11 +49,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: cross-compiler
-          path: ${{ env.OUTPUT_PATH }}
+          path: ./artifact
 
       - name: Compress Artifact
         run: |
-          cd ${{ env.OUTPUT_PATH }}
+          cd ./artifact
           for d in *; do \
               if [ -d "$d" ]; then \
                   tar -czvf $d.tar.gz $d; \
