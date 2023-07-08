@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: cross-compiler
-          path: /home/cross-compiler/${{ matrix.target }}
+          path: /home/cross-compiler
 
           
   release:
