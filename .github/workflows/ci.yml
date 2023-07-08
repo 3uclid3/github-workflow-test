@@ -4,6 +4,12 @@ name: CI
 on:
   push:
 
+env:
+  OUTPUT_PATH: /home/cross-compiler
+  BINUTILS_VERSION: "2.40"
+  GDB_VERSION: "13.2.0"
+  GCC_VERSION: "13.1.0"
+
 jobs:
   create-matrix-from-file:
     name: Read TARGETS file
@@ -53,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: cross-compiler
-          path: /home/cross-compiler/${{ matrix.target }}
+          path: ${{ env.OUTPUT_PATH }}
 
           
   release:
@@ -64,18 +70,41 @@ jobs:
     steps:
 
       - name: Download Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: cross-compiler
-          
-      - name: Release
-        uses: actions/create-release@v1
+          path: ./artifact
+
+      - name: Compress Artifact
+        run: |
+          cd ./artifact
+          for d in *; do \
+              if [ -d "$d" ]; then \
+                  tar -czvf $d.tar.gz $d; \
+              fi \
+          done
+
+      - name: Create Release
+        uses: shogo82148/actions-create-release@v1
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          generate_release_notes: true
+          tag_name: binutils-${{ env.BINUTILS_VERSION }}-gdb-${{ env.GDB_VERSION }}-gcc-${{ env.GCC_VERSION }}
+          release_name: Release binutils-${{ env.BINUTILS_VERSION }} gdb-${{ env.GDB_VERSION }} gcc-${{ env.GCC_VERSION }}
+          body: |
+            Release Versions
+            - Binutils: ${{ env.BINUTILS_VERSION }}
+            - GDB: ${{ env.GDB_VERSION }}
+            - GCC: ${{ env.GCC_VERSION }}
           draft: false
           prerelease: false
+
+      - name: Upload Release Assets
+        uses: shogo82148/actions-upload-release-asset@v1
+        id: upload-release-assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifact/*.tar.gz
