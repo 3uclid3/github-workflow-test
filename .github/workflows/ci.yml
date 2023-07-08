@@ -53,7 +53,7 @@ jobs:
       - name: Compress Artifact
         run: |
           for d in */ ; do \
-            tar -czvf ${{ env.OUTPUT_PATH }}/$f.tar.gz $f \
+            tar -czvf ${{ env.OUTPUT_PATH }}/$d.tar.gz $d \
           done \
           
       - name: Create Release
