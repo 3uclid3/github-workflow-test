@@ -1,19 +1,32 @@
 #!/bin/bash
 
-#########################
-# Args
-target="x86_64-elf"
+SHORT=t
+LONG=target:,binutils:,gdb:,gcc
+OPTS=$(getopt -a -n class --options $SHORT --longoptions $LONG -- "$@")
 
-# target is overrideable
-if [[ ! -z "$1" ]]
-then 
-    target=$1
-fi
+eval set -- "$OPTS"
 
-echo "target=$target"
+TARGET=
+BINUTILS_VERSION=
+GDB_VERSION=
+GCC_VERSION=
+while true; do
+  case "$1" in
+    -t | --target ) TARGET="$1"; shift ;;
+    --binutils ) BINUTILS_VERSION="$1"; shift ;;
+    --gdb ) GDB_VERSION="$1"; shift ;;
+    --gcc ) GCC_VERSION="$1"; shift ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
 
-mkdir -p "/home/cross-compiler/$target"
+echo "Building Cross-Compiler for $TARGET (binutils-$BINUTILS_VERSION gdb-$GDB_VERSION gcc-$GCC_VERSION)"
 
-cat <<EOF > "/home/cross-compiler/$target/target.txt"
-$target
+mkdir -p "/home/cross-compiler/$TARGET"
+
+cat <<EOF > /home/cross-compiler/$TARGET/VERSION.txt
+binutils-$BINUTILS_VERSION 
+gdb-$GDB_VERSION 
+gcc-$GCC_VERSION
 EOF
