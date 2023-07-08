@@ -49,6 +49,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: cross-compiler
+          path: ${{ env.OUTPUT_PATH }}
 
       - name: Compress Artifact
         run: |
