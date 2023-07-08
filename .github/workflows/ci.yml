@@ -1,0 +1,62 @@
+---
+name: CI
+
+on:
+  push:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-elf
+          - i686-elf
+
+    steps:
+
+      - name: Download Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cross-compiler
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: sudo ./build.sh ${{ matrix.target }}
+                
+      - name: Update Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cross-compiler
+          path: /home/cross-compiler/${{ matrix.target }}
+
+          
+  release:
+    name: Release
+    runs-on: ubuntu-22.04
+
+    needs: [build]
+          
+    steps:
+
+      - name: Download Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cross-compiler
+          
+      - name: Release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
